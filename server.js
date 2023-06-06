@@ -2,9 +2,23 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const User = require('.models/User');
 
 // Create an instance of the Express application
 const app = express();
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/mydatabase', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error) => {
+    console.error('Error connecting to MongoDB:', error);
+  });
 
 // Middleware to parse incoming requests as JSON
 app.use(express.json());
@@ -34,9 +48,15 @@ app.post('/signup', async (req, res) => {
     // Hash the user's password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save the user to the database
-    const user = { name, email, password: hashedPassword };
-    users.push(user);
+    // Create a new user instance
+    const user = new User({
+        name: name,
+        email: email,
+        password: hashedPassword,
+      });
+
+    // Save the user data in the database
+    await user.save();
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
@@ -46,29 +66,32 @@ app.post('/signup', async (req, res) => {
 
 // User login endpoint
 app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // Check if user exists
-    const user = users.find((user) => user.email === email);
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Compare the provided password with the stored hashed password
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Generate a JSON Web Token (JWT)
-    const token = jwt.sign({ email: user.email }, 'secret_key', { expiresIn: '1h' });
-
-    res.status(200).json({ token });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    try {
+        const { email, password } = req.body;
+    
+        // Find the user by email
+        const user = await User.findOne({ email });
+    
+        // If the user doesn't exist, return an error
+        if (!user) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
+    
+        // Compare the provided password with the hashed password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+        // If the passwords don't match, return an error
+        if (!isPasswordValid) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
+    
+        // Passwords match, user is authenticated
+        res.json({ message: 'Login successful' });
+      } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
 
 // Protected route example
 app.get('/protected', (req, res) => {
