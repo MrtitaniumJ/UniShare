@@ -4,7 +4,7 @@
 :root {
   --background-color: #F5F5F5; /* Light neutral color */
   --card-background-color: #ECECEC; /* Slightly darker shade for cards */
-  --primary-color: #FF8C00; /* Coral Pink */
+  --primary-color: #FF8C00; 
   --secondary-color: #FFC107; /* Amber */
   --text-color: #666666; /* Grayish Blue */
   --font-family: 'Poppins', sans-serif;
@@ -327,4 +327,16 @@ p {
 
 .social-login a.facebook {
   background-color: #1877f2; /* Facebook blue */
+}
+
+.social-login a.google:hover{
+  background-color: #eb321a;
+}
+
+.social-login a.twitter:hover {
+  background-color: #006eb3;
+}
+
+.social-login a.facebook:hover {
+  background-color: #053574;
 }

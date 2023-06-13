@@ -92,3 +92,12 @@ window.addEventListener('scroll', function() {
     }
   });
 });
+
+
+function toggleSignupForm() {
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+
+  loginForm.style.display = 'none';
+  signupForm.style.display = 'block';
+}
