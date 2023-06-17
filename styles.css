@@ -242,7 +242,10 @@ p {
   background-color: var(--card-background-color);
   padding: 20px;
   margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 8px;
+  width: 500px;
 }
 
 .form-container h2 {
